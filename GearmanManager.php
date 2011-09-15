@@ -224,6 +224,7 @@ abstract class GearmanManager {
          */
         $this->bootstrap();
 
+        $first_run_callback = !empty($this->config['startup_callback']);
 
         /**
          * Main processing loop for the parent process
@@ -231,6 +232,15 @@ abstract class GearmanManager {
         while(!$this->stop_work || count($this->children)) {
 
             $this->process_loop();
+
+            /**
+             * callback for getting notified about startup
+             */
+            if ($first_run_callback) {
+                $fname = $this->config['startup_callback'];
+                $fname();
+                $first_run_callback = false;
+            }
 
             /**
              * php will eat up your cpu if you don't have this
@@ -367,6 +377,10 @@ abstract class GearmanManager {
         } elseif(isset($this->config["user"])){
             $this->user = $this->config["user"];
         }
+
+	if (isset($opts['n'])){
+	    $this->config['startup_callback'] = $opts['n'];
+	}
 
         /**
          * If we want to daemonize, fork here and exit
