@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 
 /**
@@ -208,7 +207,7 @@ class GearmanPeclManager extends GearmanManager {
 
 }
 
-$mgr = new GearmanPeclManager();
-
-?>
+if (!defined("GEARMAN_MANAGER_LIB")) {
+    $mgr = new GearmanPeclManager();
+}
 
