@@ -177,8 +177,9 @@ abstract class GearmanManager {
     /**
      * Creates the manager and gets things going
      *
+     * @param Array $options seed getopt data with defaults in code
      */
-    public function __construct() {
+    public function __construct($options = array()) {
 
         if(!function_exists("posix_kill")){
             $this->show_help("The function posix_kill was not found. Please ensure POSIX functions are installed");
@@ -193,7 +194,7 @@ abstract class GearmanManager {
         /**
          * Parse command line options. Loads the config file as well
          */
-        $this->getopt();
+        $this->getopt($options);
 
         /**
          * Register signal listeners
@@ -302,10 +303,12 @@ abstract class GearmanManager {
     /**
      * Parses the command line options
      *
+     * @param Array $options seed options with defaults in code
      */
-    protected function getopt() {
+    protected function getopt($options) {
 
         $opts = getopt("ac:dD:h:Hl:o:p:P:u:v::w:x:Z");
+        $opts = array_merge($opts, $options);
 
         if(isset($opts["H"])){
             $this->show_help();
