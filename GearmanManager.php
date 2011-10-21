@@ -78,6 +78,11 @@ abstract class GearmanManager {
     protected $stop_time = 0;
 
     /**
+     * The filename to log to
+     */
+    protected $log_file;
+
+    /**
      * Holds the resource for the log file
      */
     protected $log_file_handle;
@@ -342,8 +347,13 @@ abstract class GearmanManager {
             $this->config['pid_file'] = $opts['P'];
         }
 
-        if (isset($opts['l'])) {
-            $this->config['log_file'] = $opts['l'];
+        if(isset($opts["l"])){
+            if($opts["l"] === 'syslog'){
+                $this->log_syslog = true;
+            } else {
+                $this->log_file = $opts["l"];
+                $this->open_log_file($this->log_file);
+            }
         }
 
         if (isset($opts['a'])) {
@@ -522,6 +532,22 @@ abstract class GearmanManager {
             exit();
         }
 
+    }
+
+   /**
+    *   Opens the logfile.  Will assign to $this->log_file_handle
+    *   
+    *    @param   string    $file     The config filename.
+    *
+    */
+    protected function open_log_file($file) {
+        if ($this->log_file_handle) {
+            @fclose($this->log_file_handle);
+        }
+        $this->log_file_handle = @fopen($file, "a");
+        if(!$this->log_file_handle){
+            $this->show_help("Could not open log file $file");
+        }
     }
 
 
@@ -891,6 +917,9 @@ abstract class GearmanManager {
                     break;
                 case SIGHUP:
                     $this->log("Restarting children", GearmanManager::LOG_LEVEL_PROC_INFO);
+                    if ($this->log_file) {
+                        $this->open_log_file($this->log_file);
+                    }
                     $this->stop_children();
                     break;
                 default:
