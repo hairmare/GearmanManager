@@ -351,8 +351,8 @@ abstract class GearmanManager {
             if($opts["l"] === 'syslog'){
                 $this->log_syslog = true;
             } else {
-                $this->log_file = $opts["l"];
-                $this->open_log_file($this->log_file);
+                $this->config['log_file'] = $opts["l"];
+                $this->open_log_file($this->config['log_file']);
             }
         }
 
